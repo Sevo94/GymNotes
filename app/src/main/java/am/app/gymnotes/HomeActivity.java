@@ -11,57 +11,42 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 public class HomeActivity extends AppCompatActivity {
 
-    private enum ScrollDirection {
-        NONE, RIGHT, LEFT
+    public interface OnScrollDirectionChangedListener {
+        void onScrollDirectionChange(ScrollDirection scrollDirection);
     }
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
+    private OnScrollDirectionChangedListener onScrollDirectionChangedListener;
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private InfiniteViewPager mViewPager;
     private ScrollDirection scrollDirection = ScrollDirection.NONE;
     private int currentPagePosition;
+
+    public void setOnScrollDirectionChangedListener(OnScrollDirectionChangedListener onScrollDirectionChangedListener) {
+        this.onScrollDirectionChangedListener = onScrollDirectionChangedListener;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (InfiniteViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         PagerAdapter wrappedAdapter = new InfinitePagerAdapter(mSectionsPagerAdapter);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -76,6 +61,9 @@ public class HomeActivity extends AppCompatActivity {
                 if (GymNotesApplication.getmInstance().isAppFirstStart()) {
                     GymNotesApplication.getmInstance().setAppFirstStart(false);
                     currentPagePosition = position;
+                    if (onScrollDirectionChangedListener != null) {
+                        onScrollDirectionChangedListener.onScrollDirectionChange(scrollDirection);
+                    }
                     return;
                 }
 
@@ -87,6 +75,9 @@ public class HomeActivity extends AppCompatActivity {
                     scrollDirection = ScrollDirection.LEFT;
                 }
                 currentPagePosition = position;
+                if (onScrollDirectionChangedListener != null) {
+                    onScrollDirectionChangedListener.onScrollDirectionChange(scrollDirection);
+                }
             }
 
             @Override
@@ -133,11 +124,6 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -147,9 +133,9 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
+            // Return a WorkoutFragment (defined as a static inner class below).
             Log.i("Sev", String.valueOf(position));
-            return PlaceholderFragment.newInstance(position + 1);
+            return WorkoutFragment.newInstance(position + 1);
         }
 
         @Override
@@ -174,56 +160,6 @@ public class HomeActivity extends AppCompatActivity {
                     return "SECTION 3";
             }
             return null;
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        private static int num = 0;
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-
-            Log.i("Sev", "onCreateView!!!");
-            Calendar cal = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd hh:mm:ss 'GMT'Z yyyy");
-//            System.out.println(dateFormat.format(cal.getTime()));
-////            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-//            textView.setText(dateFormat.format(cal.getTime()));
-////            textView.setText(String.valueOf(num++));
-
-            
-            GregorianCalendar gc = new GregorianCalendar();
-            gc.add(Calendar.DATE, num++);
-
-            System.out.println(dateFormat.format(gc.getTime()));
-            textView.setText(dateFormat.format(gc.getTime()));
-            return rootView;
         }
     }
 }
