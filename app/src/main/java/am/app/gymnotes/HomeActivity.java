@@ -18,22 +18,18 @@ import android.view.View;
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements WorkoutFragment.FragmentLoadListener {
 
-    public interface OnScrollDirectionChangedListener {
-        void onScrollDirectionChange(ScrollDirection scrollDirection);
-    }
-
-    private OnScrollDirectionChangedListener onScrollDirectionChangedListener;
+    private static final String TAG = HomeActivity.class.getCanonicalName();
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     private InfiniteViewPager mViewPager;
-    private ScrollDirection scrollDirection = ScrollDirection.NONE;
+
+    private int loadedFragmentsCount;
     private int currentPagePosition;
 
-    public void setOnScrollDirectionChangedListener(OnScrollDirectionChangedListener onScrollDirectionChangedListener) {
-        this.onScrollDirectionChangedListener = onScrollDirectionChangedListener;
+    public int getLoadedFragmentsCount() {
+        return loadedFragmentsCount;
     }
 
     @Override
@@ -47,6 +43,7 @@ public class HomeActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mViewPager = findViewById(R.id.container);
+        mViewPager.setOffscreenPageLimit(0);
         PagerAdapter wrappedAdapter = new InfinitePagerAdapter(mSectionsPagerAdapter);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -60,24 +57,21 @@ public class HomeActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 if (GymNotesApplication.getmInstance().isAppFirstStart()) {
                     GymNotesApplication.getmInstance().setAppFirstStart(false);
+                    CalenderManager.getInstance().addDateToCalender(0);
                     currentPagePosition = position;
-                    if (onScrollDirectionChangedListener != null) {
-                        onScrollDirectionChangedListener.onScrollDirectionChange(scrollDirection);
-                    }
                     return;
                 }
 
+                Log.i(TAG, "position = " + position + ", current position = " + currentPagePosition);
+
                 if (currentPagePosition < position) {
-                    Log.i("Sev", "SWIPE TO RIGHT");
-                    scrollDirection = ScrollDirection.RIGHT;
+                    Log.i(TAG, "SWIPE TO RIGHT");
+                    CalenderManager.getInstance().addDateToCalender(1);
                 } else {
-                    Log.i("Sev", "SWIPE TO LEFT");
-                    scrollDirection = ScrollDirection.LEFT;
+                    Log.i(TAG, "SWIPE TO LEFT");
+                    CalenderManager.getInstance().addDateToCalender(-1);
                 }
                 currentPagePosition = position;
-                if (onScrollDirectionChangedListener != null) {
-                    onScrollDirectionChangedListener.onScrollDirectionChange(scrollDirection);
-                }
             }
 
             @Override
@@ -103,20 +97,20 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onFragmentLoadFinished() {
+        loadedFragmentsCount++;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -132,10 +126,19 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a WorkoutFragment (defined as a static inner class below).
             Log.i("Sev", String.valueOf(position));
-            return WorkoutFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    CalenderManager.getInstance().addDateToCalender(0);
+                    break;
+                case 1:
+                    CalenderManager.getInstance().addNextDay();
+                    break;
+                case 3:
+                    CalenderManager.getInstance().addPreviousDay();
+                    break;
+            }
+            return WorkoutFragment.newInstance(position);
         }
 
         @Override
