@@ -2,12 +2,18 @@ package am.app.gymnotes;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.List;
+
+import am.app.gymnotes.database.AppDatabase;
+import am.app.gymnotes.database.entities.Exercise;
 
 
 public class WorkoutFragment extends Fragment {
@@ -87,7 +93,21 @@ public class WorkoutFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        List<Exercise> exerciseList = AppDatabase.getAppDatabase(getContext()).exerciseDao().getAll();
+
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        fragmentLoadListener = null;
     }
 }
