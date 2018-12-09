@@ -1,4 +1,4 @@
-package am.app.gymnotes;
+package am.app.gymnotes.screens.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +12,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import am.app.gymnotes.CalenderManager;
+import am.app.gymnotes.Constants;
+import am.app.gymnotes.R;
+import am.app.gymnotes.screens.activities.HomeActivity;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
 

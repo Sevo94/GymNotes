@@ -1,8 +1,8 @@
-package am.app.gymnotes;
+package am.app.gymnotes.screens.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -17,6 +17,11 @@ import android.view.View;
 
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
+
+import am.app.gymnotes.CalenderManager;
+import am.app.gymnotes.GymNotesApplication;
+import am.app.gymnotes.R;
+import am.app.gymnotes.screens.fragments.WorkoutFragment;
 
 public class HomeActivity extends AppCompatActivity implements WorkoutFragment.FragmentLoadListener {
 
@@ -85,15 +90,13 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
         mViewPager.setAdapter(wrappedAdapter);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startActivity(new Intent(HomeActivity.this, ExerciseChooserActivity.class));
             }
         });
-
     }
 
     @Override
