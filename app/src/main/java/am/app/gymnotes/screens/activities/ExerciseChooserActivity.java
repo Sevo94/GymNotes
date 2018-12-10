@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import am.app.gymnotes.R;
 import am.app.gymnotes.screens.fragments.ExerciseChooserFragment;
-import am.app.gymnotes.screens.fragments.dummy.DummyContent;
 
 public class ExerciseChooserActivity extends AppCompatActivity implements ExerciseChooserFragment.OnListFragmentInteractionListener {
 
@@ -16,7 +15,7 @@ public class ExerciseChooserActivity extends AppCompatActivity implements Exerci
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(String item) {
 
     }
 }

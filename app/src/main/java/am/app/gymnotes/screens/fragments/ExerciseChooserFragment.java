@@ -3,21 +3,19 @@ package am.app.gymnotes.screens.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Arrays;
+
 import am.app.gymnotes.R;
-import am.app.gymnotes.screens.fragments.dummy.DummyContent;
-import am.app.gymnotes.screens.fragments.dummy.DummyContent.DummyItem;
 
 public class ExerciseChooserFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
     public ExerciseChooserFragment() {
@@ -36,10 +34,6 @@ public class ExerciseChooserFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
     }
 
     @Override
@@ -47,16 +41,13 @@ public class ExerciseChooserFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.exercise_item_list, container, false);
 
-        // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new ExercisesRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+            String[] some_array = getResources().getStringArray(R.array.exercise_categories);
+            recyclerView.setAdapter(new ExercisesRecyclerViewAdapter(Arrays.asList(some_array), mListener));
         }
         return view;
     }
@@ -80,6 +71,6 @@ public class ExerciseChooserFragment extends Fragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(String item);
     }
 }

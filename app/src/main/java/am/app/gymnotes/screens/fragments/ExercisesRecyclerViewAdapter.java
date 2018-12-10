@@ -10,14 +10,13 @@ import java.util.List;
 
 import am.app.gymnotes.R;
 import am.app.gymnotes.screens.fragments.ExerciseChooserFragment.OnListFragmentInteractionListener;
-import am.app.gymnotes.screens.fragments.dummy.DummyContent.DummyItem;
 
 public class ExercisesRecyclerViewAdapter extends RecyclerView.Adapter<ExercisesRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<String> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public ExercisesRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public ExercisesRecyclerViewAdapter(List<String> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -32,15 +31,12 @@ public class ExercisesRecyclerViewAdapter extends RecyclerView.Adapter<Exercises
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mContentView.setText(mValues.get(position));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);
                 }
             }
@@ -54,15 +50,13 @@ public class ExercisesRecyclerViewAdapter extends RecyclerView.Adapter<Exercises
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public String mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.item_number);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mContentView = view.findViewById(R.id.content);
         }
 
         @Override
