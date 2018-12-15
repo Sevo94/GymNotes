@@ -2,7 +2,9 @@ package am.app.gymnotes.screens.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,10 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import am.app.gymnotes.CalenderManager;
 import am.app.gymnotes.Constants;
+import am.app.gymnotes.GymNotesApplication;
 import am.app.gymnotes.R;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
@@ -35,6 +39,7 @@ public class WorkoutFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private FragmentLoadListener fragmentLoadListener;
+    private String mDate = "";
 
     public static WorkoutFragment newInstance(int sectionNumber) {
         WorkoutFragment fragment = new WorkoutFragment();
@@ -66,13 +71,23 @@ public class WorkoutFragment extends Fragment {
         Log.i(TAG, "onCreate");
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView");
+    private TextView textView;
 
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-        TextView textView = rootView.findViewById(R.id.section_label);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        Log.i(TAG, "onCreateView!!!!!");
+        return inflater.inflate(R.layout.fragment_home, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Log.i(TAG, "onViewCreated!!!!!");
+
+        textView = view.findViewById(R.id.section_label);
 
         if (getArguments() != null) {
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
@@ -81,6 +96,7 @@ public class WorkoutFragment extends Fragment {
             if (isAdded()) {
                 int lFCount = ((HomeActivity) getActivity()).getLoadedFragmentsCount();
                 if (lFCount == Constants.FRAGMENTS_TO_LOAD) {
+                    mDate = CalenderManager.getInstance().getDate();
                     textView.setText(CalenderManager.getInstance().getFormattedDate());
                 } else {
                     if (fragmentLoadListener != null) {
@@ -88,19 +104,22 @@ public class WorkoutFragment extends Fragment {
                     }
                     switch (sectionNumber) {
                         case 0:
+                            mDate = CalenderManager.getInstance().getDate();
                             textView.setText(CalenderManager.getInstance().getCurrentDate());
                             break;
                         case 1:
+                            mDate = CalenderManager.getInstance().getNextDate();
                             textView.setText(CalenderManager.getInstance().getNextDay());
                             break;
                         case 3:
+                            mDate = CalenderManager.getInstance().getPreviousDate();
                             textView.setText(CalenderManager.getInstance().getPreviousDay());
                             break;
                     }
                 }
+                new FetchExercisesTask(new WeakReference<>(textView)).execute(mDate);
             }
         }
-        return rootView;
     }
 
     @Override
@@ -114,17 +133,11 @@ public class WorkoutFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            startActivityForResult(new Intent(getActivity(), ExerciseChooserActivity.class), 2);
+            Intent intent = new Intent(getActivity(), ExerciseChooserActivity.class);
+            intent.putExtra("date", mDate);
+            startActivityForResult(intent, 2);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-//        List<Exercise> exerciseList = AppDatabase.getAppDatabase(getContext()).exerciseDao().getAll();
-
     }
 
     @Override
@@ -142,9 +155,37 @@ public class WorkoutFragment extends Fragment {
         super.onResume();
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
         fragmentLoadListener = null;
+    }
+
+    private static class FetchExercisesTask extends AsyncTask<String, Void, List<Exercise>> {
+
+        private WeakReference<TextView> textViewWeakReference;
+
+        private FetchExercisesTask(WeakReference<TextView> textViewWeakReference) {
+            this.textViewWeakReference = textViewWeakReference;
+        }
+
+        @Override
+        protected List<Exercise> doInBackground(final String... params) {
+            String mDate = params[0];
+            return AppDatabase.getAppDatabase(GymNotesApplication.getmInstance()).exerciseDao().
+                    getExercisesByDate(mDate);
+        }
+
+        @Override
+        protected void onPostExecute(List<Exercise> exercises) {
+            super.onPostExecute(exercises);
+
+            if (exercises != null && !exercises.isEmpty()) {
+                if (textViewWeakReference.get() != null) {
+                    textViewWeakReference.get().setText(textViewWeakReference.get().getText() + exercises.get(exercises.size() - 1).getExerciseName());
+                }
+            }
+        }
     }
 }

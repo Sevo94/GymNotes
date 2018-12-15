@@ -17,4 +17,8 @@ public interface DateUtil {
     String getFormattedDate();
 
     String getDate();
+
+    String getPreviousDate();
+
+    String getNextDate();
 }

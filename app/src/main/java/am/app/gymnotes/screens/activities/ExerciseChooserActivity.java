@@ -29,16 +29,13 @@ public class ExerciseChooserActivity extends AppCompatActivity implements Exerci
         exercise.setExerciseDate(String.valueOf(Calendar.getInstance().getTimeInMillis()));
         exercise.setExerciseName(item);
 
-
-//        Calendar c = Calendar.getInstance();
-//
-//        int mYear = c.get(Calendar.YEAR);
-//        int mMonth = c.get(Calendar.MONTH) + 1;
-//        int mDay = c.get(Calendar.DAY_OF_MONTH);
-//
         Log.i(TAG, CalenderManager.getInstance().getDate());
 
-        exercise.setExerciseDate(CalenderManager.getInstance().getDate());
+        String mDate = "";
+        if (getIntent() != null && getIntent().getStringExtra("date") != null) {
+            mDate = getIntent().getStringExtra("date");
+        }
+        exercise.setExerciseDate(mDate);
         AppDatabase.getAppDatabase(this).exerciseDao().addExercise(exercise);
 
         finish();

@@ -72,11 +72,30 @@ public class CalenderManager implements DateUtil {
 
     @Override
     public String getDate() {
-        Calendar c = Calendar.getInstance();
 
-        int mYear = c.get(Calendar.YEAR);
-        int mMonth = c.get(Calendar.MONTH) + 1;
-        int mDay = c.get(Calendar.DAY_OF_MONTH);
+        int mYear = gc.get(Calendar.YEAR);
+        int mMonth = gc.get(Calendar.MONTH) + 1;
+        int mDay = gc.get(Calendar.DAY_OF_MONTH);
+
+        return "" + mDay + mMonth + mYear;
+    }
+
+    @Override
+    public String getPreviousDate() {
+
+        int mYear = previousDay.get(Calendar.YEAR);
+        int mMonth = previousDay.get(Calendar.MONTH) + 1;
+        int mDay = previousDay.get(Calendar.DAY_OF_MONTH);
+
+        return "" + mDay + mMonth + mYear;
+    }
+
+    @Override
+    public String getNextDate() {
+
+        int mYear = nextDay.get(Calendar.YEAR);
+        int mMonth = nextDay.get(Calendar.MONTH) + 1;
+        int mDay = nextDay.get(Calendar.DAY_OF_MONTH);
 
         return "" + mDay + mMonth + mYear;
     }
