@@ -1,11 +1,15 @@
 package am.app.gymnotes.screens.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -15,9 +19,10 @@ import java.util.List;
 import am.app.gymnotes.CalenderManager;
 import am.app.gymnotes.Constants;
 import am.app.gymnotes.R;
-import am.app.gymnotes.screens.activities.HomeActivity;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
+import am.app.gymnotes.screens.activities.ExerciseChooserActivity;
+import am.app.gymnotes.screens.activities.HomeActivity;
 
 
 public class WorkoutFragment extends Fragment {
@@ -56,6 +61,8 @@ public class WorkoutFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
         Log.i(TAG, "onCreate");
     }
 
@@ -97,10 +104,36 @@ public class WorkoutFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_home, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            startActivityForResult(new Intent(getActivity(), ExerciseChooserActivity.class), 2);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        List<Exercise> exerciseList = AppDatabase.getAppDatabase(getContext()).exerciseDao().getAll();
+//        List<Exercise> exerciseList = AppDatabase.getAppDatabase(getContext()).exerciseDao().getAll();
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        List<Exercise> exerciseList = AppDatabase.getAppDatabase(getContext()).exerciseDao().
+                getExercisesByDate(CalenderManager.getInstance().getDate());
+
 
     }
 

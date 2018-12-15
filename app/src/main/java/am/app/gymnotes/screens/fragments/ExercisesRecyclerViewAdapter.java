@@ -23,9 +23,19 @@ public class ExercisesRecyclerViewAdapter extends RecyclerView.Adapter<Exercises
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+        final View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.exercise_item, parent, false);
-        return new ViewHolder(view);
+
+        final ViewHolder viewHolder = new ViewHolder(view);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onListFragmentInteraction(mValues.get(viewHolder.getAdapterPosition()));
+                }
+            }
+        });
+        return viewHolder;
     }
 
     @Override

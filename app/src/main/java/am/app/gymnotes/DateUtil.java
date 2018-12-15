@@ -15,4 +15,6 @@ public interface DateUtil {
     String getCurrentDate();
 
     String getFormattedDate();
+
+    String getDate();
 }

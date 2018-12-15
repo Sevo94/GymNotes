@@ -18,7 +18,7 @@ public class CalenderManager implements DateUtil {
     private Calendar gc;
     private Calendar previousDay;
     private Calendar nextDay;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd hh:mm:ss 'GMT'Z yyyy", Locale.ENGLISH);
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd yyyy", Locale.ENGLISH);
 
     private CalenderManager() {
         gc = new GregorianCalendar();
@@ -68,5 +68,16 @@ public class CalenderManager implements DateUtil {
     @Override
     public String getFormattedDate() {
         return dateFormat.format(gc.getTime());
+    }
+
+    @Override
+    public String getDate() {
+        Calendar c = Calendar.getInstance();
+
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH) + 1;
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        return "" + mDay + mMonth + mYear;
     }
 }
