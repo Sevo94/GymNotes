@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import am.app.gymnotes.screens.activities.HomeActivity;
+
 public class CalenderManager implements DateUtil {
 
     private static class InstanceHolder {
@@ -15,39 +17,41 @@ public class CalenderManager implements DateUtil {
         return InstanceHolder.mInstance;
     }
 
-    private Calendar gc;
+    private Calendar currentDay;
     private Calendar previousDay;
     private Calendar nextDay;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd yyyy", Locale.ENGLISH);
 
+    private HomeActivity.Date date = HomeActivity.Date.CURRENT;
+
+    public void setDate(HomeActivity.Date date) {
+        this.date = date;
+    }
+
     private CalenderManager() {
-        gc = new GregorianCalendar();
+        currentDay = new GregorianCalendar();
         previousDay = new GregorianCalendar();
         nextDay = new GregorianCalendar();
-    }
 
-
-    @Override
-    public void addDateToCalender(int amount) {
-        if (amount == 1) {
-            previousDay.add(Calendar.DATE, amount);
-            nextDay.add(Calendar.DATE, amount);
-            gc = nextDay;
-        } else if (amount == -1) {
-            nextDay.add(Calendar.DATE, amount);
-            previousDay.add(Calendar.DATE, amount);
-            gc = previousDay;
-        }
-    }
-
-    @Override
-    public void addNextDay() {
+        previousDay.add(Calendar.DATE, -1);
         nextDay.add(Calendar.DATE, 1);
     }
 
     @Override
-    public void addPreviousDay() {
-        previousDay.add(Calendar.DATE, -1);
+    public void addDateToCalender(HomeActivity.Date date) {
+        switch (date) {
+            case PREVIOUS:
+                nextDay.add(Calendar.DATE, -1);
+                currentDay.add(Calendar.DATE, -1);
+                previousDay.add(Calendar.DATE, -1);
+                break;
+            case NEXT:
+                previousDay.add(Calendar.DATE, 1);
+                nextDay.add(Calendar.DATE, 1);
+                currentDay.add(Calendar.DATE, 1);
+                break;
+        }
+        this.date = date;
     }
 
     @Override
@@ -61,41 +65,64 @@ public class CalenderManager implements DateUtil {
     }
 
     @Override
-    public String getCurrentDate() {
-        return dateFormat.format(Calendar.getInstance().getTime());
-    }
-
-    @Override
     public String getFormattedDate() {
-        return dateFormat.format(gc.getTime());
+        switch (date) {
+            case PREVIOUS:
+                return dateFormat.format(previousDay.getTime());
+            case CURRENT:
+                return dateFormat.format(currentDay.getTime());
+            case NEXT:
+                return dateFormat.format(nextDay.getTime());
+            default:
+                return "";
+        }
     }
 
     @Override
     public String getDate() {
 
-        int mYear = gc.get(Calendar.YEAR);
-        int mMonth = gc.get(Calendar.MONTH) + 1;
-        int mDay = gc.get(Calendar.DAY_OF_MONTH);
-
-        return "" + mDay + mMonth + mYear;
+        switch (date) {
+            case PREVIOUS:
+                return getPreviousDate();
+            case CURRENT:
+                return getCurrentDate();
+            case NEXT:
+                return getNextDate();
+            default:
+                return "";
+        }
     }
 
     @Override
     public String getPreviousDate() {
+        int mYear, mMonth, mDay;
 
-        int mYear = previousDay.get(Calendar.YEAR);
-        int mMonth = previousDay.get(Calendar.MONTH) + 1;
-        int mDay = previousDay.get(Calendar.DAY_OF_MONTH);
+        mYear = previousDay.get(Calendar.YEAR);
+        mMonth = previousDay.get(Calendar.MONTH) + 1;
+        mDay = previousDay.get(Calendar.DAY_OF_MONTH);
 
         return "" + mDay + mMonth + mYear;
     }
 
     @Override
-    public String getNextDate() {
+    public String getCurrentDate() {
+        int mYear, mMonth, mDay;
 
-        int mYear = nextDay.get(Calendar.YEAR);
-        int mMonth = nextDay.get(Calendar.MONTH) + 1;
-        int mDay = nextDay.get(Calendar.DAY_OF_MONTH);
+        mYear = currentDay.get(Calendar.YEAR);
+        mMonth = currentDay.get(Calendar.MONTH) + 1;
+        mDay = currentDay.get(Calendar.DAY_OF_MONTH);
+
+        return "" + mDay + mMonth + mYear;
+
+    }
+
+    @Override
+    public String getNextDate() {
+        int mYear, mMonth, mDay;
+
+        mYear = nextDay.get(Calendar.YEAR);
+        mMonth = nextDay.get(Calendar.MONTH) + 1;
+        mDay = nextDay.get(Calendar.DAY_OF_MONTH);
 
         return "" + mDay + mMonth + mYear;
     }

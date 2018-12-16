@@ -1,24 +1,22 @@
 package am.app.gymnotes;
 
+import am.app.gymnotes.screens.activities.HomeActivity;
+
 public interface DateUtil {
 
-    void addDateToCalender(int amount);
-
-    void addNextDay();
-
-    void addPreviousDay();
+    void addDateToCalender(HomeActivity.Date date);
 
     String getNextDay();
 
     String getPreviousDay();
-
-    String getCurrentDate();
 
     String getFormattedDate();
 
     String getDate();
 
     String getPreviousDate();
+
+    String getCurrentDate();
 
     String getNextDate();
 }

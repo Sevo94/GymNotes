@@ -104,16 +104,16 @@ public class WorkoutFragment extends Fragment {
                     }
                     switch (sectionNumber) {
                         case 0:
+                            textView.setText(CalenderManager.getInstance().getFormattedDate());
                             mDate = CalenderManager.getInstance().getDate();
-                            textView.setText(CalenderManager.getInstance().getCurrentDate());
                             break;
                         case 1:
-                            mDate = CalenderManager.getInstance().getNextDate();
                             textView.setText(CalenderManager.getInstance().getNextDay());
+                            mDate = CalenderManager.getInstance().getNextDate();
                             break;
                         case 3:
-                            mDate = CalenderManager.getInstance().getPreviousDate();
                             textView.setText(CalenderManager.getInstance().getPreviousDay());
+                            mDate = CalenderManager.getInstance().getPreviousDate();
                             break;
                     }
                 }
@@ -144,10 +144,7 @@ public class WorkoutFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        List<Exercise> exerciseList = AppDatabase.getAppDatabase(getContext()).exerciseDao().
-                getExercisesByDate(CalenderManager.getInstance().getDate());
-
-
+        new FetchExercisesTask(new WeakReference<>(textView)).execute(mDate);
     }
 
     @Override

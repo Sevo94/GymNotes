@@ -17,11 +17,14 @@ import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
 
 import am.app.gymnotes.CalenderManager;
-import am.app.gymnotes.GymNotesApplication;
 import am.app.gymnotes.R;
 import am.app.gymnotes.screens.fragments.WorkoutFragment;
 
 public class HomeActivity extends AppCompatActivity implements WorkoutFragment.FragmentLoadListener {
+
+    public enum Date {
+        PREVIOUS, CURRENT, NEXT
+    }
 
     private static final String TAG = HomeActivity.class.getCanonicalName();
 
@@ -30,6 +33,8 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
 
     private int loadedFragmentsCount;
     private int currentPagePosition;
+
+    private boolean appFirstStart;
 
     public int getLoadedFragmentsCount() {
         return loadedFragmentsCount;
@@ -40,8 +45,15 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Log.i(TAG, "onCreate");
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //when activity recreated
+        appFirstStart = true;
+        CalenderManager.getInstance().setDate(Date.CURRENT);
+        loadedFragmentsCount = 0;
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -58,9 +70,8 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
 
             @Override
             public void onPageSelected(int position) {
-                if (GymNotesApplication.getmInstance().isAppFirstStart()) {
-                    GymNotesApplication.getmInstance().setAppFirstStart(false);
-                    CalenderManager.getInstance().addDateToCalender(0);
+                if (appFirstStart) {
+                    appFirstStart = false;
                     currentPagePosition = position;
                     return;
                 }
@@ -69,10 +80,10 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
 
                 if (currentPagePosition < position) {
                     Log.i(TAG, "SWIPE TO RIGHT");
-                    CalenderManager.getInstance().addDateToCalender(1);
+                    CalenderManager.getInstance().addDateToCalender(Date.NEXT);
                 } else {
                     Log.i(TAG, "SWIPE TO LEFT");
-                    CalenderManager.getInstance().addDateToCalender(-1);
+                    CalenderManager.getInstance().addDateToCalender(Date.PREVIOUS);
                 }
                 currentPagePosition = position;
             }
@@ -107,23 +118,6 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
         loadedFragmentsCount++;
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_home, menu);
-//        return true;
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -133,17 +127,6 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
         @Override
         public Fragment getItem(int position) {
             Log.i("Sev", String.valueOf(position));
-            switch (position) {
-                case 0:
-                    CalenderManager.getInstance().addDateToCalender(0);
-                    break;
-                case 1:
-                    CalenderManager.getInstance().addNextDay();
-                    break;
-                case 3:
-                    CalenderManager.getInstance().addPreviousDay();
-                    break;
-            }
             return WorkoutFragment.newInstance(position);
         }
 
