@@ -1,4 +1,4 @@
-package am.app.gymnotes.screens.fragments;
+package am.app.gymnotes.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

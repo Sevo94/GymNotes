@@ -1,5 +1,6 @@
 package am.app.gymnotes.database.dataaccess;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
@@ -12,7 +13,7 @@ import am.app.gymnotes.database.entities.Exercise;
 public interface ExerciseDao {
 
     @Query("SELECT * FROM table_exercise WHERE exercise_date = :date")
-    List<Exercise> getExercisesByDate(String date);
+    LiveData<List<Exercise>> getExercisesByDate(String date);
 
     //
 //    @Query("SELECT * FROM table_exercise where table_exercise LIKE  :firstName AND last_name LIKE :lastName")

@@ -1,5 +1,6 @@
 package am.app.gymnotes.screens.activities;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -38,6 +39,7 @@ public class ExerciseChooserActivity extends AppCompatActivity implements Exerci
         exercise.setExerciseDate(mDate);
         AppDatabase.getAppDatabase(this).exerciseDao().addExercise(exercise);
 
+        setResult(Activity.RESULT_OK);
         finish();
     }
 }

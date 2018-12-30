@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import java.util.Arrays;
 
 import am.app.gymnotes.R;
+import am.app.gymnotes.adapters.ExercisesRecyclerViewAdapter;
 
 public class ExerciseChooserFragment extends Fragment {
 

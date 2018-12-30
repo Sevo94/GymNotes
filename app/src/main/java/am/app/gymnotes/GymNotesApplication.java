@@ -11,6 +11,14 @@ public class GymNotesApplication extends Application {
         super.onCreate();
 
         mInstance = this;
+
+        final Thread.UncaughtExceptionHandler eh = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+                eh.uncaughtException(thread, ex);
+            }
+        });
     }
 
     public static GymNotesApplication getmInstance() {
