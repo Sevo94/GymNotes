@@ -1,11 +1,13 @@
 package am.app.gymnotes.adapters;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import am.app.gymnotes.R;
@@ -14,44 +16,29 @@ import am.app.gymnotes.screens.fragments.ExerciseChooserFragment.OnListFragmentI
 
 public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.ViewHolder> {
 
-    private final List<Exercise> mExerciseList;
-    private final OnListFragmentInteractionListener mListener;
+    private List<Exercise> mExerciseList;
+    private OnListFragmentInteractionListener mListener;
 
-    public WorkoutLogAdapter(List<Exercise> exerciseList, OnListFragmentInteractionListener listener) {
-        mExerciseList = exerciseList;
-        mListener = listener;
+    public WorkoutLogAdapter() {
+        mExerciseList = new ArrayList<>();
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.exercise_item, parent, false);
 
-        final ViewHolder viewHolder = new ViewHolder(view);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-//                    mListener.onListFragmentInteraction(mExerciseList.get(viewHolder.getAdapterPosition()));
-                }
-            }
-        });
-        return viewHolder;
+        return  new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-//        holder.mItem = mValues.get(position);
-//        holder.mContentView.setText(mValues.get(position));
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        holder.mContentView.setText(mExerciseList.get(position).getExerciseName());
+    }
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
+    public void updateExercises(List<Exercise> exerciseList) {
+        mExerciseList = exerciseList;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -60,13 +47,10 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mContentView;
-        public String mItem;
+        final TextView mContentView;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
-            mView = view;
             mContentView = view.findViewById(R.id.content);
         }
 

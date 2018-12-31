@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
@@ -47,5 +48,11 @@ public class WorkoutViewModel extends ViewModelModule {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        Log.i("sss", "onCleared");
     }
 }

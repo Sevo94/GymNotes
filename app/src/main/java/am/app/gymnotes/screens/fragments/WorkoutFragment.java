@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,6 +28,7 @@ import am.app.gymnotes.CalenderManager;
 import am.app.gymnotes.Constants;
 import am.app.gymnotes.GymNotesApplication;
 import am.app.gymnotes.R;
+import am.app.gymnotes.adapters.WorkoutLogAdapter;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
 import am.app.gymnotes.screens.activities.ExerciseChooserActivity;
@@ -49,18 +52,24 @@ public class WorkoutFragment extends Fragment {
     private String mDate = "";
 
     private ViewModelModule viewModel;
+    private WorkoutLogAdapter mAdapter = new WorkoutLogAdapter();
 
     private final Observer<List<Exercise>> observer = new Observer<List<Exercise>>() {
         @Override
         public void onChanged(@Nullable List<Exercise> exerciseList) {
             Log.i(TAG, "onChanged!!!!!" + (exerciseList != null && !(exerciseList.isEmpty()) ? exerciseList.get(0).getExerciseDate() : CalenderManager.getInstance().getDate()));
             if (exerciseList != null && !(exerciseList.isEmpty())) {
-                textView.setText(textView.getText() + exerciseList.get(0).getExerciseName());
+                //textView.setText(textView.getText() + exerciseList.get(0).getExerciseName());
 
                 int lFCount = (fragmentLoadListener != null) ? ((HomeActivity) fragmentLoadListener).getLoadedFragmentsCount() : 0;
-                if (lFCount == Constants.FRAGMENTS_TO_LOAD && exerciseList.get(0).getExerciseDate().equals(CalenderManager.getInstance().getCurrentDate())) {
-                    Log.i(TAG, "exercise added on this date!!!!!");
-                }
+
+                Log.i(TAG, "exercise added on this date!!!!!");
+
+                //&& exerciseList.get(0).getExerciseDate().equals(CalenderManager.getInstance().getCurrentDate()
+                mAdapter.updateExercises(exerciseList);
+//                if (lFCount == Constants.FRAGMENTS_TO_LOAD) {
+//
+//                }
             }
         }
     };
@@ -143,18 +152,15 @@ public class WorkoutFragment extends Fragment {
         textView = view.findViewById(R.id.section_label);
 
         if (getArguments() != null) {
-            int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-            Log.i(TAG, "sectionNumber = " + String.valueOf(sectionNumber));
 
+            int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
             if (isAdded()) {
+                initFragmentView(view);
                 int lFCount = (fragmentLoadListener != null) ? ((HomeActivity) fragmentLoadListener).getLoadedFragmentsCount() : 0;
                 if (lFCount == Constants.FRAGMENTS_TO_LOAD) {
                     mDate = CalenderManager.getInstance().getDate();
                     textView.setText(CalenderManager.getInstance().getFormattedDate());
 
-//                    if (viewModel != null) {
-//                        viewModel.getWorkoutList().removeObserver(observer);
-//                    }
                     viewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
                     viewModel.getWorkoutList().observe(WorkoutFragment.this, observer);
 
@@ -166,33 +172,33 @@ public class WorkoutFragment extends Fragment {
                         case 0:
                             textView.setText(CalenderManager.getInstance().getFormattedDate());
                             mDate = CalenderManager.getInstance().getDate();
-
-//                            Log.i(TAG, "WorkoutViewModel!!!!!");
-//                            viewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-                            //viewModel.getWorkoutList().observe(WorkoutFragment.this, observer);
                             break;
                         case 1:
                             textView.setText(CalenderManager.getInstance().getNextDay());
                             mDate = CalenderManager.getInstance().getNextDate();
-
-//                            Log.i(TAG, "WorkoutViewModelNext!!!!!");
-//                            viewModel = ViewModelProviders.of(this).get(WorkoutViewModelNext.class);
                             break;
                         case 3:
                             textView.setText(CalenderManager.getInstance().getPreviousDay());
                             mDate = CalenderManager.getInstance().getPreviousDate();
-
-//                            Log.i(TAG, "WorkoutViewModelPrev!!!!!");
-//                            viewModel = ViewModelProviders.of(this).get(WorkoutViewModelPrev.class);
                             break;
                     }
-
-                    //viewModel.getWorkoutList().observe(WorkoutFragment.this, observer);
                 }
                 //new FetchExercisesTask(new WeakReference<>(textView)).execute(mDate);
             }
         }
     }
+
+    private void initFragmentView(View view) {
+        RecyclerView recyclerView = view.findViewById(R.id.exercise_list_rv);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+
+        recyclerView.setAdapter(mAdapter);
+    }
+
 
     @Override
     public void onDestroyView() {
