@@ -19,4 +19,6 @@ public interface DateUtil {
     String getCurrentDate();
 
     String getNextDate();
+
+    void updateDates(int year, int month, int day);
 }

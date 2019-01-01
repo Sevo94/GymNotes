@@ -126,4 +126,31 @@ public class CalenderManager implements DateUtil {
 
         return "" + mDay + mMonth + mYear;
     }
+
+    @Override
+    public void updateDates(int year, int month, int day) {
+        currentDay.set(Calendar.YEAR, year);
+        currentDay.set(Calendar.MONTH, month);
+        currentDay.set(Calendar.DAY_OF_MONTH, day);
+
+        if (month == 0 && day == 1) {
+            previousDay.set(Calendar.YEAR, year - 1);
+            previousDay.set(Calendar.MONTH, 11);
+            previousDay.set(Calendar.DAY_OF_MONTH, 31);
+        } else {
+            previousDay.set(Calendar.YEAR, year);
+            previousDay.set(Calendar.MONTH, month);
+            previousDay.set(Calendar.DAY_OF_MONTH, day - 1);
+        }
+
+        if (month == 11 && day == 31) {
+            nextDay.set(Calendar.YEAR, year + 1);
+            nextDay.set(Calendar.MONTH, 0);
+            nextDay.set(Calendar.DAY_OF_MONTH, 1);
+        } else {
+            nextDay.set(Calendar.YEAR, year);
+            nextDay.set(Calendar.MONTH, month);
+            nextDay.set(Calendar.DAY_OF_MONTH, day + 1);
+        }
+    }
 }

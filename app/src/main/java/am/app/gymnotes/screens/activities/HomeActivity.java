@@ -107,6 +107,12 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
         });
     }
 
+    public void updateViewPager(int year, int month, int day) {
+        CalenderManager.getInstance().updateDates(year, month, day);
+        finish();
+        startActivity(getIntent());
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

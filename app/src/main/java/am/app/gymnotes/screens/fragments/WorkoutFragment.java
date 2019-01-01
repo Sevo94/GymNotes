@@ -1,5 +1,6 @@
 package am.app.gymnotes.screens.fragments;
 
+import android.app.DatePickerDialog;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,9 +21,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
 import java.util.List;
 
 import am.app.gymnotes.CalenderManager;
@@ -49,6 +53,7 @@ public class WorkoutFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private FragmentLoadListener fragmentLoadListener;
+    private FragmentActivity mActivity;
     private String mDate = "";
 
     private ViewModelModule viewModel;
@@ -91,6 +96,7 @@ public class WorkoutFragment extends Fragment {
 
         try {
             fragmentLoadListener = (FragmentLoadListener) context;
+            mActivity = (HomeActivity) context;
         } catch (ClassCastException e) {
             //TODO Host activity should implement this interface
         }
@@ -152,8 +158,8 @@ public class WorkoutFragment extends Fragment {
         textView = view.findViewById(R.id.section_label);
 
         if (getArguments() != null) {
-
             int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+            Log.i(TAG, "section number = " + sectionNumber);
             if (isAdded()) {
                 initFragmentView(view);
                 int lFCount = (fragmentLoadListener != null) ? ((HomeActivity) fragmentLoadListener).getLoadedFragmentsCount() : 0;
@@ -216,10 +222,37 @@ public class WorkoutFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(getActivity(), ExerciseChooserActivity.class);
-            intent.putExtra("date", mDate);
-            startActivityForResult(intent, 2);
+        Intent intent;
+
+        switch (id) {
+            case R.id.action_settings:
+                intent = new Intent(getActivity(), ExerciseChooserActivity.class);
+                intent.putExtra("date", mDate);
+                startActivityForResult(intent, 2);
+                break;
+            case R.id.action_calender:
+//                intent = new Intent(getActivity(), CalenderActivity.class);
+//                startActivity(intent);
+
+                final Calendar c = Calendar.getInstance();
+                final int mYear = c.get(Calendar.YEAR);
+                final int mMonth = c.get(Calendar.MONTH);
+                final int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+                if (mActivity != null && !mActivity.isFinishing()) {
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(mActivity,
+                            new DatePickerDialog.OnDateSetListener() {
+
+                                @Override
+                                public void onDateSet(DatePicker view, int year,
+                                                      int monthOfYear, int dayOfMonth) {
+                                    if (mActivity != null) {
+                                        ((HomeActivity) mActivity).updateViewPager(year, monthOfYear, dayOfMonth);
+                                    }
+                                }
+                            }, mYear, mMonth, mDay);
+                    datePickerDialog.show();
+                }
         }
         return super.onOptionsItemSelected(item);
     }
