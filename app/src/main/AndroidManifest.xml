@@ -21,7 +21,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".screens.activities.ExerciseChooserActivity" />
-        <activity android:name=".screens.activities.CalenderActivity"></activity>
     </application>
 
 </manifest>

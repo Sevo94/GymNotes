@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
-import java.util.Calendar;
 import java.util.List;
 
 import am.app.gymnotes.CalenderManager;
@@ -64,7 +64,6 @@ public class WorkoutFragment extends Fragment {
         public void onChanged(@Nullable List<Exercise> exerciseList) {
             Log.i(TAG, "onChanged!!!!!" + (exerciseList != null && !(exerciseList.isEmpty()) ? exerciseList.get(0).getExerciseDate() : CalenderManager.getInstance().getDate()));
             if (exerciseList != null && !(exerciseList.isEmpty())) {
-                //textView.setText(textView.getText() + exerciseList.get(0).getExerciseName());
 
                 int lFCount = (fragmentLoadListener != null) ? ((HomeActivity) fragmentLoadListener).getLoadedFragmentsCount() : 0;
 
@@ -72,9 +71,6 @@ public class WorkoutFragment extends Fragment {
 
                 //&& exerciseList.get(0).getExerciseDate().equals(CalenderManager.getInstance().getCurrentDate()
                 mAdapter.updateExercises(exerciseList);
-//                if (lFCount == Constants.FRAGMENTS_TO_LOAD) {
-//
-//                }
             }
         }
     };
@@ -231,13 +227,12 @@ public class WorkoutFragment extends Fragment {
                 startActivityForResult(intent, 2);
                 break;
             case R.id.action_calender:
-//                intent = new Intent(getActivity(), CalenderActivity.class);
-//                startActivity(intent);
 
-                final Calendar c = Calendar.getInstance();
-                final int mYear = c.get(Calendar.YEAR);
-                final int mMonth = c.get(Calendar.MONTH);
-                final int mDay = c.get(Calendar.DAY_OF_MONTH);
+                CalenderManager.DateModel dateModel = CalenderManager.getInstance().getSelectedPageDate();
+
+                final int mYear = dateModel.getYear();
+                final int mMonth = dateModel.getMonth();
+                final int mDay = dateModel.getDay();
 
                 if (mActivity != null && !mActivity.isFinishing()) {
                     DatePickerDialog datePickerDialog = new DatePickerDialog(mActivity,
@@ -251,7 +246,14 @@ public class WorkoutFragment extends Fragment {
                                     }
                                 }
                             }, mYear, mMonth, mDay);
+
+                    datePickerDialog.setButton(DatePickerDialog.BUTTON_POSITIVE, getResources().getString(R.string.jump_to_date), datePickerDialog);
+                    datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, getResources().getString(R.string.cancel), datePickerDialog);
                     datePickerDialog.show();
+
+                    /* because button's text appear in all capital letters */
+                    datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE).setTransformationMethod(null);
+                    datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTransformationMethod(null);
                 }
         }
         return super.onOptionsItemSelected(item);

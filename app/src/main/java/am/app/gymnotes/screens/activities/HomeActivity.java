@@ -125,7 +125,7 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
 
     public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

@@ -153,4 +153,35 @@ public class CalenderManager implements DateUtil {
             nextDay.set(Calendar.DAY_OF_MONTH, day + 1);
         }
     }
+
+    @Override
+    public DateModel getSelectedPageDate() {
+        return new DateModel(currentDay.get(Calendar.YEAR),
+                currentDay.get(Calendar.MONTH), currentDay.get(Calendar.DAY_OF_MONTH));
+    }
+
+    public static class DateModel {
+
+        int year;
+        int month;
+        int day;
+
+        public DateModel(int year, int month, int day) {
+            this.year = year;
+            this.month = month;
+            this.day = day;
+        }
+
+        public int getYear() {
+            return year;
+        }
+
+        public int getMonth() {
+            return month;
+        }
+
+        public int getDay() {
+            return day;
+        }
+    }
 }

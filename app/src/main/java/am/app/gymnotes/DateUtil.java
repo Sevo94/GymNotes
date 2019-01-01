@@ -21,4 +21,6 @@ public interface DateUtil {
     String getNextDate();
 
     void updateDates(int year, int month, int day);
+
+    CalenderManager.DateModel getSelectedPageDate();
 }
