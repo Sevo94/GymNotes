@@ -35,7 +35,6 @@ import am.app.gymnotes.R;
 import am.app.gymnotes.adapters.WorkoutLogAdapter;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
-import am.app.gymnotes.screens.activities.ExerciseChooserActivity;
 import am.app.gymnotes.screens.activities.HomeActivity;
 import am.app.gymnotes.viewmodels.ViewModelModule;
 import am.app.gymnotes.viewmodels.WorkoutViewModel;
@@ -222,9 +221,9 @@ public class WorkoutFragment extends Fragment {
 
         switch (id) {
             case R.id.action_settings:
-                intent = new Intent(getActivity(), ExerciseChooserActivity.class);
-                intent.putExtra("date", mDate);
-                startActivityForResult(intent, 2);
+//                intent = new Intent(getActivity(), ExerciseChooserActivity.class);
+//                intent.putExtra("date", mDate);
+//                startActivityForResult(intent, 2);
                 break;
             case R.id.action_calender:
 
