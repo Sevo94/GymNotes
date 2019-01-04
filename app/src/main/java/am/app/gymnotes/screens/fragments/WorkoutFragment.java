@@ -26,8 +26,12 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
+import am.app.gymnotes.adapters.BottomSheetAdapter;
+import am.app.gymnotes.BottomSheetClickListener;
+import am.app.gymnotes.BottomSheetMenu;
 import am.app.gymnotes.CalenderManager;
 import am.app.gymnotes.Constants;
 import am.app.gymnotes.GymNotesApplication;
@@ -35,6 +39,7 @@ import am.app.gymnotes.R;
 import am.app.gymnotes.adapters.WorkoutLogAdapter;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
+import am.app.gymnotes.screens.activities.ExerciseChooserActivity;
 import am.app.gymnotes.screens.activities.HomeActivity;
 import am.app.gymnotes.viewmodels.ViewModelModule;
 import am.app.gymnotes.viewmodels.WorkoutViewModel;
@@ -48,6 +53,10 @@ public class WorkoutFragment extends Fragment {
         void onFragmentLoadFinished();
     }
 
+    public interface WorkoutItemClickListener {
+        void onItemClick(int position);
+    }
+
     private static final String TAG = WorkoutFragment.class.getCanonicalName();
     private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -57,6 +66,8 @@ public class WorkoutFragment extends Fragment {
 
     private ViewModelModule viewModel;
     private WorkoutLogAdapter mAdapter = new WorkoutLogAdapter();
+
+    private boolean isBottomSheetOpened;
 
     private final Observer<List<Exercise>> observer = new Observer<List<Exercise>>() {
         @Override
@@ -70,6 +81,51 @@ public class WorkoutFragment extends Fragment {
 
                 //&& exerciseList.get(0).getExerciseDate().equals(CalenderManager.getInstance().getCurrentDate()
                 mAdapter.updateExercises(exerciseList);
+            }
+        }
+    };
+
+    private WorkoutItemClickListener workoutItemClickListener = new WorkoutItemClickListener() {
+        @Override
+        public void onItemClick(int position) {
+            if (isBottomSheetOpened) {
+                return;
+            }
+
+            List<BottomSheetAdapter.BottomSheetAdapterItem> adapterItems = new ArrayList<>();
+
+            adapterItems.add(new BottomSheetAdapter.BottomSheetAdapterItem(R.mipmap.calender, R.string.cancel));
+            adapterItems.add(new BottomSheetAdapter.BottomSheetAdapterItem(R.mipmap.calender, R.string.jump_to_date));
+
+            BottomSheetAdapter bottomSheetAdapter = new BottomSheetAdapter(getContext(), adapterItems);
+
+            BottomSheetMenu bottomSheetMenu = new BottomSheetMenu();
+            bottomSheetMenu.setAdapter(bottomSheetAdapter);
+
+            bottomSheetMenu.setOnItemClickListener(mSheetClickListener);
+
+            if (bottomSheetMenu.isAdded()) {
+                return;
+            }
+
+            if (mActivity != null && !mActivity.isFinishing()) {
+                bottomSheetMenu.setOnDismissListener(new BottomSheetMenu.BottomSheetDismissListener() {
+                    @Override
+                    public void onBottomSheetDismiss() {
+                        isBottomSheetOpened = false;
+                    }
+                });
+                bottomSheetMenu.show(mActivity.getSupportFragmentManager(), "tag");
+                isBottomSheetOpened = true;
+            }
+        }
+    };
+
+    private BottomSheetClickListener mSheetClickListener = new BottomSheetClickListener() {
+        @Override
+        public void onClick(int position) {
+            if (isAdded()) {
+                startActivity(new Intent(mActivity, ExerciseChooserActivity.class));
             }
         }
     };
@@ -103,6 +159,7 @@ public class WorkoutFragment extends Fragment {
         Log.i(TAG, "onCreate");
 
         setHasOptionsMenu(true);
+        mAdapter.setmListener(workoutItemClickListener);
 
         int lFCount = (fragmentLoadListener != null) ? ((HomeActivity) fragmentLoadListener).getLoadedFragmentsCount() : 0;
 
@@ -261,14 +318,6 @@ public class WorkoutFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-//        Log.i(TAG, "onActivityResult!!!!! RESULT CODE = " + resultCode);
-//        //TODO change 2 with constant
-//        if (requestCode == 2) {
-//            if (resultCode == Activity.RESULT_OK) {
-//                new FetchExercisesTask(new WeakReference<>(textView)).execute(mDate);
-//            }
-//        }
     }
 
     @Override
@@ -281,6 +330,8 @@ public class WorkoutFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         fragmentLoadListener = null;
+        mSheetClickListener = null;
+        mActivity = null;
     }
 
     private static class FetchExercisesTask extends AsyncTask<String, Void, LiveData<List<Exercise>>> {
