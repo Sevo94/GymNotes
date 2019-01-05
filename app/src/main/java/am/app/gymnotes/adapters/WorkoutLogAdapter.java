@@ -12,19 +12,15 @@ import java.util.List;
 
 import am.app.gymnotes.R;
 import am.app.gymnotes.database.entities.Exercise;
-import am.app.gymnotes.screens.fragments.WorkoutFragment;
+import am.app.gymnotes.screens.fragments.ExerciseChooserFragment.OnListFragmentInteractionListener;
 
 public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.ViewHolder> {
 
     private List<Exercise> mExerciseList;
-    private WorkoutFragment.WorkoutItemClickListener mListener;
+    private OnListFragmentInteractionListener mListener;
 
     public WorkoutLogAdapter() {
         mExerciseList = new ArrayList<>();
-    }
-
-    public void setmListener(WorkoutFragment.WorkoutItemClickListener mListener) {
-        this.mListener = mListener;
     }
 
     @Override
@@ -32,16 +28,7 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
         final View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.exercise_item, parent, false);
 
-        final ViewHolder viewHolder = new ViewHolder(view);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-                    mListener.onItemClick(viewHolder.getAdapterPosition());
-                }
-            }
-        });
-        return viewHolder;
+        return  new ViewHolder(view);
     }
 
     @Override
