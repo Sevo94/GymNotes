@@ -74,6 +74,13 @@ public class WorkoutFragment extends Fragment {
         }
     };
 
+    private final Observer<Boolean> mOnPageSelectedObserver = new Observer<Boolean>() {
+        @Override
+        public void onChanged(@Nullable Boolean aBoolean) {
+            mAdapter.clearAllSelectedItems();
+        }
+    };
+
     public static WorkoutFragment newInstance(int sectionNumber) {
         WorkoutFragment fragment = new WorkoutFragment();
         Bundle args = new Bundle();
@@ -132,6 +139,10 @@ public class WorkoutFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.i(TAG, "onActivityCreated");
+
+        if (mActivity != null && !mActivity.isFinishing()) {
+            ((HomeActivity) mActivity).getOnPageSelected().observe(WorkoutFragment.this, mOnPageSelectedObserver);
+        }
     }
 
     private TextView textView;
@@ -197,6 +208,7 @@ public class WorkoutFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
+        mAdapter.setContext(getContext());
         recyclerView.setAdapter(mAdapter);
     }
 

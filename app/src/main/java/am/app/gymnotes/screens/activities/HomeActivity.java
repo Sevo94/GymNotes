@@ -1,5 +1,6 @@
 package am.app.gymnotes.screens.activities;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -38,6 +39,12 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
 
     public int getLoadedFragmentsCount() {
         return loadedFragmentsCount;
+    }
+
+    private MutableLiveData<Boolean> onPageSelected = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> getOnPageSelected() {
+        return onPageSelected;
     }
 
     @Override
@@ -85,6 +92,8 @@ public class HomeActivity extends AppCompatActivity implements WorkoutFragment.F
                     CalenderManager.getInstance().addDateToCalender(Date.PREVIOUS);
                 }
                 currentPagePosition = position;
+
+                onPageSelected.setValue(true);
             }
 
             @Override
