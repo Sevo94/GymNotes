@@ -24,4 +24,8 @@ public class ViewModelModule extends AndroidViewModel {
     public LiveData<List<Exercise>> getWorkoutList() {
         return workoutList;
     }
+
+    public void deleteExercises(List<Exercise> exerciseList) {
+        AppDatabase.getAppDatabase(getApplication()).exerciseDao().delete(exerciseList);
+    }
 }

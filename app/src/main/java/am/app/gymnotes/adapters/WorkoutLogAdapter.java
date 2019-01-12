@@ -13,26 +13,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import am.app.gymnotes.ContextualActionOBar;
+import am.app.gymnotes.ExerciseRemoveListener;
 import am.app.gymnotes.R;
 import am.app.gymnotes.database.entities.Exercise;
-import am.app.gymnotes.screens.fragments.ExerciseChooserFragment.OnListFragmentInteractionListener;
 
 public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.ViewHolder> {
 
     private List<Exercise> mExerciseList;
-    private OnListFragmentInteractionListener mListener;
 
     private boolean multiSelectMode;
     private Set<String> mSelectedExercises = new HashSet<>();
 
     private Context context;
+    private ContextualActionOBar contextualActionOBarListener;
+    private ExerciseRemoveListener exerciseRemoveListener;
 
     public void setContext(Context context) {
         this.context = context;
     }
 
-    public WorkoutLogAdapter() {
+    public WorkoutLogAdapter(ContextualActionOBar contextualActionOBar, ExerciseRemoveListener exerciseRemoveListener) {
         mExerciseList = new ArrayList<>();
+        contextualActionOBarListener = contextualActionOBar;
+        this.exerciseRemoveListener = exerciseRemoveListener;
     }
 
     @NonNull
@@ -52,6 +56,10 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
 
                         if (mSelectedExercises.isEmpty()) {
                             multiSelectMode = false;
+
+                            if (contextualActionOBarListener != null) {
+                                contextualActionOBarListener.onContextChanged(false);
+                            }
                         }
 
                         viewHolder.containerView.setBackgroundResource(R.drawable.exercise_item_shapte_deactive);
@@ -63,6 +71,9 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
                     multiSelectMode = true;
                     mSelectedExercises.add(exerciseId);
                     viewHolder.containerView.setBackgroundResource(R.drawable.exercise_item_shape);
+                    if (contextualActionOBarListener != null) {
+                        contextualActionOBarListener.onContextChanged(true);
+                    }
                 }
                 return true;
             }
@@ -79,6 +90,10 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
 
                         if (mSelectedExercises.isEmpty()) {
                             multiSelectMode = false;
+
+                            if (contextualActionOBarListener != null) {
+                                contextualActionOBarListener.onContextChanged(false);
+                            }
                         }
 
                         viewHolder.containerView.setBackgroundResource(R.drawable.exercise_item_shapte_deactive);
@@ -113,11 +128,33 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
         notifyDataSetChanged();
     }
 
+    public void deleteExercises() {
+        multiSelectMode = false;
+        List<Exercise> removedExerciseList = new ArrayList<>();
+
+        for (Exercise exercise : mExerciseList) {
+            if (mSelectedExercises.contains(exercise.getExerciseId())) {
+                removedExerciseList.add(exercise);
+            }
+        }
+
+        if (exerciseRemoveListener != null) {
+            exerciseRemoveListener.onExercisesDeleted(removedExerciseList);
+        }
+        if (contextualActionOBarListener != null) {
+            contextualActionOBarListener.onContextChanged(false);
+        }
+    }
+
     public void clearAllSelectedItems() {
         if (multiSelectMode) {
             multiSelectMode = false;
             mSelectedExercises.clear();
             notifyDataSetChanged();
+
+            if (contextualActionOBarListener != null) {
+                contextualActionOBarListener.onContextChanged(false);
+            }
         }
     }
 

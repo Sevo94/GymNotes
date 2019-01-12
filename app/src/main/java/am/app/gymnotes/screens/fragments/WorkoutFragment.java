@@ -30,6 +30,8 @@ import java.util.List;
 
 import am.app.gymnotes.CalenderManager;
 import am.app.gymnotes.Constants;
+import am.app.gymnotes.ContextualActionOBar;
+import am.app.gymnotes.ExerciseRemoveListener;
 import am.app.gymnotes.GymNotesApplication;
 import am.app.gymnotes.R;
 import am.app.gymnotes.adapters.WorkoutLogAdapter;
@@ -42,7 +44,8 @@ import am.app.gymnotes.viewmodels.WorkoutViewModelNext;
 import am.app.gymnotes.viewmodels.WorkoutViewModelPrev;
 
 
-public class WorkoutFragment extends Fragment {
+public class WorkoutFragment extends Fragment implements ContextualActionOBar,
+        ExerciseRemoveListener {
 
     public interface FragmentLoadListener {
         void onFragmentLoadFinished();
@@ -56,13 +59,15 @@ public class WorkoutFragment extends Fragment {
     private String mDate = "";
 
     private ViewModelModule viewModel;
-    private WorkoutLogAdapter mAdapter = new WorkoutLogAdapter();
+    private WorkoutLogAdapter mAdapter = new WorkoutLogAdapter(this, this);
+
+    private boolean contextuatActionBar;
 
     private final Observer<List<Exercise>> observer = new Observer<List<Exercise>>() {
         @Override
         public void onChanged(@Nullable List<Exercise> exerciseList) {
             Log.i(TAG, "onChanged!!!!!" + (exerciseList != null && !(exerciseList.isEmpty()) ? exerciseList.get(0).getExerciseDate() : CalenderManager.getInstance().getDate()));
-            if (exerciseList != null && !(exerciseList.isEmpty())) {
+            if (exerciseList != null) {
 
                 int lFCount = (fragmentLoadListener != null) ? ((HomeActivity) fragmentLoadListener).getLoadedFragmentsCount() : 0;
 
@@ -220,8 +225,25 @@ public class WorkoutFragment extends Fragment {
     }
 
     @Override
+    public void onContextChanged(boolean isActivated) {
+        if (mActivity != null && !mActivity.isFinishing()) {
+            contextuatActionBar = isActivated;
+            mActivity.invalidateOptionsMenu();
+        }
+    }
+
+    @Override
+    public void onExercisesDeleted(List<Exercise> exerciseList) {
+        viewModel.deleteExercises(exerciseList);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_home, menu);
+        if (contextuatActionBar) {
+            inflater.inflate(R.menu.menu_multipleselect, menu);
+        } else {
+            inflater.inflate(R.menu.menu_home, menu);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -236,6 +258,11 @@ public class WorkoutFragment extends Fragment {
 //                intent = new Intent(getActivity(), ExerciseChooserActivity.class);
 //                intent.putExtra("date", mDate);
 //                startActivityForResult(intent, 2);
+                break;
+            case R.id.action_delete:
+                if (mAdapter != null) {
+                    mAdapter.deleteExercises();
+                }
                 break;
             case R.id.action_calender:
 
