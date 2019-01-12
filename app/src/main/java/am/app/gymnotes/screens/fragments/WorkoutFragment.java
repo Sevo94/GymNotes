@@ -34,6 +34,7 @@ import am.app.gymnotes.ContextualActionOBar;
 import am.app.gymnotes.ExerciseRemoveListener;
 import am.app.gymnotes.GymNotesApplication;
 import am.app.gymnotes.R;
+import am.app.gymnotes.SelectedItemsCountListener;
 import am.app.gymnotes.adapters.WorkoutLogAdapter;
 import am.app.gymnotes.database.AppDatabase;
 import am.app.gymnotes.database.entities.Exercise;
@@ -45,7 +46,7 @@ import am.app.gymnotes.viewmodels.WorkoutViewModelPrev;
 
 
 public class WorkoutFragment extends Fragment implements ContextualActionOBar,
-        ExerciseRemoveListener {
+        ExerciseRemoveListener, SelectedItemsCountListener {
 
     public interface FragmentLoadListener {
         void onFragmentLoadFinished();
@@ -59,9 +60,9 @@ public class WorkoutFragment extends Fragment implements ContextualActionOBar,
     private String mDate = "";
 
     private ViewModelModule viewModel;
-    private WorkoutLogAdapter mAdapter = new WorkoutLogAdapter(this, this);
+    private WorkoutLogAdapter mAdapter = new WorkoutLogAdapter(this, this, this);
 
-    private boolean contextuatActionBar;
+    private boolean contextualActionBar;
 
     private final Observer<List<Exercise>> observer = new Observer<List<Exercise>>() {
         @Override
@@ -227,7 +228,7 @@ public class WorkoutFragment extends Fragment implements ContextualActionOBar,
     @Override
     public void onContextChanged(boolean isActivated) {
         if (mActivity != null && !mActivity.isFinishing()) {
-            contextuatActionBar = isActivated;
+            contextualActionBar = isActivated;
             mActivity.invalidateOptionsMenu();
         }
     }
@@ -235,11 +236,27 @@ public class WorkoutFragment extends Fragment implements ContextualActionOBar,
     @Override
     public void onExercisesDeleted(List<Exercise> exerciseList) {
         viewModel.deleteExercises(exerciseList);
+        onNumberUpdate(0);
+    }
+
+    @Override
+    public void onNumberUpdate(int number) {
+        if (mActivity != null && !mActivity.isFinishing()) {
+
+            android.support.v7.app.ActionBar actionBar = ((HomeActivity) mActivity).getSupportActionBar();
+            if (actionBar != null) {
+                if (contextualActionBar) {
+                    actionBar.setTitle(String.valueOf(number));
+                } else {
+                    actionBar.setTitle("GymNotes");
+                }
+            }
+        }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (contextuatActionBar) {
+        if (contextualActionBar) {
             inflater.inflate(R.menu.menu_multipleselect, menu);
         } else {
             inflater.inflate(R.menu.menu_home, menu);

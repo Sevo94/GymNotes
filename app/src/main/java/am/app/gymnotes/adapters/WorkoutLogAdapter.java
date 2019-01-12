@@ -16,6 +16,7 @@ import java.util.Set;
 import am.app.gymnotes.ContextualActionOBar;
 import am.app.gymnotes.ExerciseRemoveListener;
 import am.app.gymnotes.R;
+import am.app.gymnotes.SelectedItemsCountListener;
 import am.app.gymnotes.database.entities.Exercise;
 
 public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.ViewHolder> {
@@ -28,15 +29,17 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
     private Context context;
     private ContextualActionOBar contextualActionOBarListener;
     private ExerciseRemoveListener exerciseRemoveListener;
+    private SelectedItemsCountListener selectedItemsCountListener;
 
     public void setContext(Context context) {
         this.context = context;
     }
 
-    public WorkoutLogAdapter(ContextualActionOBar contextualActionOBar, ExerciseRemoveListener exerciseRemoveListener) {
+    public WorkoutLogAdapter(ContextualActionOBar contextualActionOBar, ExerciseRemoveListener exerciseRemoveListener, SelectedItemsCountListener selectedItemsCountListener) {
         mExerciseList = new ArrayList<>();
         contextualActionOBarListener = contextualActionOBar;
         this.exerciseRemoveListener = exerciseRemoveListener;
+        this.selectedItemsCountListener = selectedItemsCountListener;
     }
 
     @NonNull
@@ -75,6 +78,7 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
                         contextualActionOBarListener.onContextChanged(true);
                     }
                 }
+                updateSelectedItemsCount(mSelectedExercises.size());
                 return true;
             }
         });
@@ -101,6 +105,7 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
                         mSelectedExercises.add(exerciseId);
                         viewHolder.containerView.setBackgroundResource(R.drawable.exercise_item_shape);
                     }
+                    updateSelectedItemsCount(mSelectedExercises.size());
                 }
             }
         });
@@ -134,15 +139,17 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
 
         for (Exercise exercise : mExerciseList) {
             if (mSelectedExercises.contains(exercise.getExerciseId())) {
+                mSelectedExercises.remove(exercise.getExerciseId());
                 removedExerciseList.add(exercise);
             }
         }
 
-        if (exerciseRemoveListener != null) {
-            exerciseRemoveListener.onExercisesDeleted(removedExerciseList);
-        }
         if (contextualActionOBarListener != null) {
             contextualActionOBarListener.onContextChanged(false);
+
+            if (exerciseRemoveListener != null) {
+                exerciseRemoveListener.onExercisesDeleted(removedExerciseList);
+            }
         }
     }
 
@@ -155,6 +162,12 @@ public class WorkoutLogAdapter extends RecyclerView.Adapter<WorkoutLogAdapter.Vi
             if (contextualActionOBarListener != null) {
                 contextualActionOBarListener.onContextChanged(false);
             }
+        }
+    }
+
+    private void updateSelectedItemsCount(int size) {
+        if (selectedItemsCountListener != null) {
+            selectedItemsCountListener.onNumberUpdate(size);
         }
     }
 
